@@ -23397,6 +23397,11 @@
     githubId = 9870613;
     name = "Hubert Mühlhans";
   };
+  tris203 = {
+    email = "admin@snappeh.com";
+    github = "tris203";
+    githubId = 18444302;
+  };
   trishtzy = {
     github = "trishtzy";
     githubId = 5356506;
