@@ -40,8 +40,21 @@ def test_parse_args() -> None:
             "--flake",
             "/etc/nixos",
             "--option",
-            "foo",
-            "bar",
+            "foo1",
+            "bar1",
+            "--option",
+            "foo2",
+            "bar2",
+            "--override-input",
+            "override1",
+            "input1",
+            "--override-input",
+            "override2",
+            "input2",
+            "--update-input",
+            "input1",
+            "--update-input",
+            "input2",
         ]
     )
     assert nr.logger.level == logging.INFO
@@ -50,8 +63,27 @@ def test_parse_args() -> None:
     assert r1.install_grub is True
     assert r1.profile_name == "system"
     assert r1.action == "switch"
-    assert r1.option == ["foo", "bar"]
-    assert g1["common_flags"].option == ["foo", "bar"]
+    # round-trip test (ensure that we have the same flags as parsed)
+    assert nr.utils.dict_to_flags(vars(g1["common_flags"])) == [
+        "--option",
+        "foo1",
+        "bar1",
+        "--option",
+        "foo2",
+        "bar2",
+    ]
+    assert nr.utils.dict_to_flags(vars(g1["flake_common_flags"])) == [
+        "--update-input",
+        "input1",
+        "--update-input",
+        "input2",
+        "--override-input",
+        "override1",
+        "input1",
+        "--override-input",
+        "override2",
+        "input2",
+    ]
 
     r2, g2 = nr.parse_args(
         [
@@ -63,7 +95,13 @@ def test_parse_args() -> None:
             "foo",
             "--attr",
             "bar",
+            "-I",
+            "include1",
+            "-I",
+            "include2",
             "-vvv",
+            "--quiet",
+            "--quiet",
         ]
     )
     assert nr.logger.level == logging.DEBUG
@@ -72,7 +110,18 @@ def test_parse_args() -> None:
     assert r2.action == "dry-build"
     assert r2.file == "foo"
     assert r2.attr == "bar"
-    assert g2["common_flags"].v == 3
+    # round-trip test (ensure that we have the same flags as parsed)
+    assert nr.utils.dict_to_flags(vars(g2["common_flags"])) == [
+        "-vvv",
+        "--quiet",
+        "--quiet",
+    ]
+    assert nr.utils.dict_to_flags(vars(g2["common_build_flags"])) == [
+        "--include",
+        "include1",
+        "--include",
+        "include2",
+    ]
 
 
 @patch.dict(nr.process.os.environ, {}, clear=True)
@@ -95,7 +144,7 @@ def test_execute_nix_boot(mock_run: Any, tmp_path: Path) -> None:
 
     mock_run.side_effect = run_side_effect
 
-    nr.execute(["nixos-rebuild", "boot", "--no-flake", "-vvv", "--fast"])
+    nr.execute(["nixos-rebuild", "boot", "--no-flake", "-vvv", "--no-reexec"])
 
     assert mock_run.call_count == 6
     mock_run.assert_has_calls(
@@ -173,7 +222,7 @@ def test_execute_nix_build_vm(mock_run: Any, tmp_path: Path) -> None:
             "nixos-config=./configuration.nix",
             "-I",
             "nixpkgs=$HOME/.nix-defexpr/channels/pinned_nixpkgs",
-            "--fast",
+            "--no-reexec",
         ]
     )
 
@@ -291,7 +340,11 @@ def test_execute_nix_switch_flake(mock_run: Any, tmp_path: Path) -> None:
             "--install-bootloader",
             "--sudo",
             "--verbose",
-            "--fast",
+            "--no-reexec",
+            # https://github.com/NixOS/nixpkgs/issues/374050
+            "--option",
+            "narinfo-cache-negative-ttl",
+            "1200",
         ]
     )
 
@@ -307,6 +360,9 @@ def test_execute_nix_switch_flake(mock_run: Any, tmp_path: Path) -> None:
                     "--print-out-paths",
                     "/path/to/config#nixosConfigurations.hostname.config.system.build.toplevel",
                     "-v",
+                    "--option",
+                    "narinfo-cache-negative-ttl",
+                    "1200",
                     "--no-link",
                 ],
                 check=True,
@@ -362,7 +418,7 @@ def test_execute_nix_switch_flake_target_host(
             "--use-remote-sudo",
             "--target-host",
             "user@localhost",
-            "--fast",
+            "--no-reexec",
         ]
     )
 
@@ -452,7 +508,7 @@ def test_execute_nix_switch_flake_build_host(
             "/path/to/config#hostname",
             "--build-host",
             "user@localhost",
-            "--fast",
+            "--no-reexec",
         ]
     )
 
@@ -531,7 +587,7 @@ def test_execute_switch_rollback(mock_run: Any, tmp_path: Path) -> None:
     nixpkgs_path.touch()
 
     nr.execute(
-        ["nixos-rebuild", "switch", "--rollback", "--install-bootloader", "--fast"]
+        ["nixos-rebuild", "switch", "--rollback", "--install-bootloader", "--no-reexec"]
     )
 
     assert mock_run.call_count >= 2
@@ -569,7 +625,7 @@ def test_execute_build(mock_run: Any, tmp_path: Path) -> None:
         CompletedProcess([], 0, str(config_path)),
     ]
 
-    nr.execute(["nixos-rebuild", "build", "--no-flake", "--fast"])
+    nr.execute(["nixos-rebuild", "build", "--no-flake", "--no-reexec"])
 
     assert mock_run.call_count == 1
     mock_run.assert_has_calls(
@@ -603,7 +659,7 @@ def test_execute_test_flake(mock_run: Any, tmp_path: Path) -> None:
     mock_run.side_effect = run_side_effect
 
     nr.execute(
-        ["nixos-rebuild", "test", "--flake", "github:user/repo#hostname", "--fast"]
+        ["nixos-rebuild", "test", "--flake", "github:user/repo#hostname", "--no-reexec"]
     )
 
     assert mock_run.call_count == 2
@@ -656,7 +712,7 @@ def test_execute_test_rollback(
     mock_run.side_effect = run_side_effect
 
     nr.execute(
-        ["nixos-rebuild", "test", "--rollback", "--profile-name", "foo", "--fast"]
+        ["nixos-rebuild", "test", "--rollback", "--profile-name", "foo", "--no-reexec"]
     )
 
     assert mock_run.call_count == 2

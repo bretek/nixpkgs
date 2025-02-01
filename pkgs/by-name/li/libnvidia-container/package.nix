@@ -52,7 +52,9 @@ stdenv.mkDerivation rec {
     # for binary lookups.
     # TODO: Remove the legacy compatibility once nvidia-docker is removed
     # from NixOS.
-    ./0002-nvc-nvidia-docker-compatible-binary-lookups.patch
+    (replaceVars ./0002-nvc-nvidia-docker-compatible-binary-lookups.patch {
+      inherit (addDriverRunpath) driverLink;
+    })
 
     # fix bogus struct declaration
     ./0003-nvc-fix-struct-declaration.patch
@@ -97,6 +99,15 @@ stdenv.mkDerivation rec {
     substituteInPlace mk/common.mk \
       --replace-fail objcopy '$(OBJCOPY)' \
       --replace-fail ldconfig true
+  '';
+
+  # Recreate library symlinks which ldconfig would have created
+  postFixup = ''
+    for lib in libnvidia-container libnvidia-container-go; do
+      rm -f "$out/lib/$lib.so"
+      ln -s "$out/lib/$lib.so.${version}" "$out/lib/$lib.so.1"
+      ln -s "$out/lib/$lib.so.1" "$out/lib/$lib.so"
+    done
   '';
 
   enableParallelBuilding = true;

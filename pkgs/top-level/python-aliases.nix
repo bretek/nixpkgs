@@ -53,6 +53,7 @@ mapAliases ({
   amazon_kclpy = amazon-kclpy; # added 2023-08-08
   ambiclimate = throw "ambiclimate has been removed, because the service has been terminated after 2024-03-31."; # Added 2024-06-07
   ambee = throw "ambee has been removed because the upstream repository was archived in 2022"; # Added 2024-10-04
+  amiibo-py = throw "amiibo-py has been removed because the upstream repository was removed"; # Added 2025-01-13
   ansible-base = throw "ansible-base has been removed, because it is end of life"; # added 2022-03-30
   ansible-doctor = throw "ansible-doctor has been promoted to a top-level attribute name: `pkgs.ansible-doctor`"; # Added 2023-05-16
   ansible-later = throw "ansible-later has been promoted to a top-level attribute name: `pkgs.ansible-later`"; # Added 2023-05-16
@@ -327,9 +328,12 @@ mapAliases ({
   Kajiki = kajiki; # added 2023-02-19
   keepkey_agent = keepkey-agent; # added 2024-01-06
   Keras = keras; # added 2021-11-25
+  keras-applications = throw "keras-applications has been removed because it's abandoned since 2022"; # added 2025-01-12
+  keras-preprocessing = throw "keras-preprocessing has been removed because it's abandoned since 2024"; # added 2025-01-12
   keyring_24 = throw "keyring_24 has been removed, use keyring instead"; # added 2025-01-01
   ldap = python-ldap; # added 2022-09-16
   lammps-cython = throw "lammps-cython no longer builds and is unmaintained"; # added 2021-07-04
+  langchain-standard-tests = langchain-tests; # added 2025-01-22
   langchainplus-sdk = langsmith; # added 2023-08-01
   lazr_config = lazr-config; # added 2023-11-03
   lazr_delegates = lazr-delegates; # added 2023-11-03
@@ -432,6 +436,7 @@ mapAliases ({
   pdfx = throw "pdfx has been removed because the upstream repository was archived in 2023"; # Added 2024-10-04
   pep257 = pydocstyle; # added 2022-04-12
   pillow-simd = throw "pillow-simd has been removed for lagging behind pillow upstream, which exposes it to various security issues."; # Added 2024-10-24
+  pipenv-poetry-migrate = throw "pipenv-poetry-migrate was promoted to a top-level attribute"; # added 2025-01-14
   pixelmatch = "pixelmatch has been removed as it was unmaintained"; # Added 2024-08-18
   pkutils = throw "pkutils was removed as it was unused and is not applicable to modern Python build tools"; # added 2024-07-28
   poetry = throw "poetry was promoted to a top-level attribute, use poetry-core to build Python packages"; # added 2023-01-09
@@ -618,6 +623,7 @@ mapAliases ({
   retry_decorator = retry-decorator; # added 2024-01-07
   retworkx = rustworkx; # added 2023-05-14
   rig = throw "rig has been removed because it was pinned to python 2.7 and 3.5, failed to build and is otherwise unmaintained"; # added 2022-11-28
+  rising = throw "rising has been removed because it was abandoned and archived by upstream"; # added 2024-11-15
   rl-coach = "rl-coach was removed because the project is discontinued and was archived by upstream"; # added 2023-05-03
   roboschool = throw "roboschool is deprecated in favor of PyBullet and has been removed"; # added 2022-01-15
   ronin = throw "ronin has been removed because it was unmaintained since 2018"; # added 2024-08-21
