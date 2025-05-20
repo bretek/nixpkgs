@@ -36,19 +36,17 @@ let
       };
 
       pretix-plugin-build = self.callPackage ./plugin-build.nix { };
-
-      sentry-sdk = super.sentry-sdk_2;
     };
   };
 
   pname = "pretix";
-  version = "2025.1.0";
+  version = "2025.4.0";
 
   src = fetchFromGitHub {
     owner = "pretix";
     repo = "pretix";
     rev = "refs/tags/v${version}";
-    hash = "sha256-azJFXuoV+9qs5MJQTkc1+ZiJb6UKwEa0Ow0p31CkHqI=";
+    hash = "sha256-K/llv85CWp+V70BiYAR7lT+urGdLbXBhWpCptxUqDrc=";
   };
 
   npmDeps = buildNpmPackage {
@@ -56,7 +54,7 @@ let
     inherit version src;
 
     sourceRoot = "${src.name}/src/pretix/static/npm_dir";
-    npmDepsHash = "sha256-oo9fo3MjwKYA8gueJ5otIPawORaVNj/Js3y8ZuCZ4qQ=";
+    npmDepsHash = "sha256-FqwgHmIUfcipVbeXmN4uYPHdmnuaSgOQ9LHgKRf16ys=";
 
     dontBuild = true;
 
@@ -81,19 +79,25 @@ python.pkgs.buildPythonApplication rec {
   ];
 
   pythonRelaxDeps = [
+    "beautifulsoup4"
+    "celery"
+    "django-bootstrap3"
     "django-phonenumber-field"
     "dnspython"
     "drf_ujson2"
     "importlib-metadata"
     "kombu"
     "markdown"
+    "phonenumberslite"
     "pillow"
     "protobuf"
     "pycryptodome"
     "pyjwt"
+    "pypdf"
     "python-bidi"
     "qrcode"
     "redis"
+    "reportlab"
     "requests"
     "sentry-sdk"
     "ua-parser"
@@ -194,7 +198,6 @@ python.pkgs.buildPythonApplication rec {
       requests
       sentry-sdk
       sepaxml
-      slimit
       stripe
       text-unidecode
       tlds

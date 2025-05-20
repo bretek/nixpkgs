@@ -9,7 +9,6 @@
   gusb,
   pixman,
   glib,
-  nss,
   gobject-introspection,
   cairo,
   libgudev,
@@ -24,7 +23,7 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "libfprint";
-  version = "1.94.8";
+  version = "1.94.9";
   outputs = [
     "out"
     "devdoc"
@@ -61,7 +60,6 @@ stdenv.mkDerivation (finalAttrs: {
     gusb
     pixman
     glib
-    nss
     cairo
     libgudev
     openssl

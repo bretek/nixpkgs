@@ -8,7 +8,7 @@
 
 python3Packages.buildPythonApplication rec {
   pname = "charmcraft";
-  version = "3.4.2";
+  version = "3.4.6";
 
   pyproject = true;
 
@@ -16,7 +16,7 @@ python3Packages.buildPythonApplication rec {
     owner = "canonical";
     repo = "charmcraft";
     tag = version;
-    hash = "sha256-6ucF0iQxQrFFz7jlaktYsB538W8jbX+Sw5hP0/VoYsk=";
+    hash = "sha256-i7XhsVmeO3fzAWCQ1v9J/dv4oSdN00svauIColQcj9A=";
   };
 
   postPatch = ''

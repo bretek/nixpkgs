@@ -13,20 +13,23 @@
   libuv,
   wslay,
   zlib,
-  withMruby ? false,
+  withMruby ? true,
   bison,
   ruby,
+  withUring ? stdenv.hostPlatform.isLinux,
+  liburing,
+  nixosTests,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "h2o";
-  version = "2.3.0.20250130";
+  version = "2.3.0.20250430";
 
   src = fetchFromGitHub {
     owner = "h2o";
     repo = "h2o";
-    rev = "26b116e9536be8cf07036185e3edf9d721c9bac2";
-    sha256 = "sha256-WjsUUnSs3kXjAmh+V/lzL1QlxxXNCph99UsC29YAirQ=";
+    rev = "f1918a5b9f75f4da9db801b442886cb13b3c7bcd";
+    sha256 = "sha256-sfOkyEhlLGmXjYqRoI/8pD6/NBY7q6K9y2vS7qwJmrw=";
   };
 
   outputs = [
@@ -46,7 +49,8 @@ stdenv.mkDerivation (finalAttrs: {
     ++ lib.optionals withMruby [
       bison
       ruby
-    ];
+    ]
+    ++ lib.optional withUring liburing;
 
   buildInputs = [
     brotli
@@ -66,9 +70,14 @@ stdenv.mkDerivation (finalAttrs: {
     EXES="$(find "$out/share/h2o" -type f -executable)"
     for exe in $EXES; do
       wrapProgram "$exe" \
-        --set "H2O_PERL" "${lib.getExe perl}"
+        --set "H2O_PERL" "${lib.getExe perl}" \
+        --prefix "PATH" : "${lib.getBin openssl}/bin"
     done
   '';
+
+  passthru = {
+    tests = { inherit (nixosTests) h2o; };
+  };
 
   meta = with lib; {
     description = "Optimized HTTP/1.x, HTTP/2, HTTP/3 server";

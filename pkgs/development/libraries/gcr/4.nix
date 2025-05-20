@@ -26,9 +26,9 @@
   systemdSupport ? lib.meta.availableOn stdenv.hostPlatform systemd,
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "gcr";
-  version = "4.3.0";
+  version = "4.4.0.1";
 
   outputs = [
     "out"
@@ -38,8 +38,8 @@ stdenv.mkDerivation rec {
   ];
 
   src = fetchurl {
-    url = "mirror://gnome/sources/gcr/${lib.versions.majorMinor version}/gcr-${version}.tar.xz";
-    hash = "sha256-w+6HKOQ2SwOX9DX6IPkvkBqxOdKyZPTgWdZ7PA9DzTY=";
+    url = "mirror://gnome/sources/gcr/${lib.versions.majorMinor finalAttrs.version}/gcr-${finalAttrs.version}.tar.xz";
+    hash = "sha256-DDw0Hkn59PJTKkiEUJgEGQoMJmPmEgNguymMXRdKgJg=";
   };
 
   strictDeps = true;
@@ -110,7 +110,7 @@ stdenv.mkDerivation rec {
 
   meta = with lib; {
     platforms = platforms.unix;
-    maintainers = teams.gnome.members;
+    teams = [ teams.gnome ];
     description = "GNOME crypto services (daemon and tools)";
     mainProgram = "gcr-viewer-gtk4";
     homepage = "https://gitlab.gnome.org/GNOME/gcr";
@@ -125,4 +125,4 @@ stdenv.mkDerivation rec {
       (G)object oriented way.
     '';
   };
-}
+})

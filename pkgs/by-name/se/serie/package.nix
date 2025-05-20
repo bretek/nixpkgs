@@ -1,9 +1,7 @@
 {
   lib,
-  stdenv,
   fetchFromGitHub,
   rustPlatform,
-  darwin,
   testers,
   gitMinimal,
   serie,
@@ -11,25 +9,17 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "serie";
-  version = "0.4.3";
+  version = "0.4.6";
 
   src = fetchFromGitHub {
     owner = "lusingander";
     repo = "serie";
     rev = "v${version}";
-    hash = "sha256-NjEom/UZQ/so27sYU5ADEJQL7KhwnunTjjkh3MLliGA=";
+    hash = "sha256-26B/bwXz60fcZrh6H1RPROiML44S1Pt1J3VrJh2gRrI=";
   };
 
   useFetchCargoVendor = true;
-  cargoHash = "sha256-r6fJ2NsBJaJVJzEnST89VY4wEQdpH1FsadV9BuF/K6E=";
-
-  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin (
-    with darwin.apple_sdk.frameworks;
-    [
-      CoreGraphics
-      AppKit
-    ]
-  );
+  cargoHash = "sha256-Bdk553tECJiMxJlXj147Sv2LzH+nM+/Cm5BpBr78I4o=";
 
   nativeCheckInputs = [ gitMinimal ];
 

@@ -13,7 +13,7 @@
 
   ## wandb
   buildPythonPackage,
-  substituteAll,
+  replaceVars,
 
   # build-system
   hatchling,
@@ -25,12 +25,14 @@
   platformdirs,
   protobuf,
   psutil,
+  pydantic,
   pyyaml,
   requests,
-  sentry-sdk_2,
+  sentry-sdk,
   setproctitle,
   setuptools,
   pythonOlder,
+  eval-type-backport,
   typing-extensions,
 
   # tests
@@ -56,7 +58,6 @@
   parameterized,
   pillow,
   plotly,
-  pydantic,
   pyfakefs,
   pyte,
   pytest-asyncio,
@@ -70,17 +71,18 @@
   soundfile,
   tenacity,
   torch,
+  torchvision,
   tqdm,
   writableTmpDirAsHomeHook,
 }:
 
 let
-  version = "0.19.6";
+  version = "0.19.10";
   src = fetchFromGitHub {
     owner = "wandb";
     repo = "wandb";
     tag = "v${version}";
-    hash = "sha256-snyr0IlE4otk1ctWUrJEFAmHYsXe+k6qULCaO3aW0e4=";
+    hash = "sha256-SptjImAK0hDAr7UZjUMWnAVB1bxyzoATlyrPek5Tm48=";
   };
 
   gpu-stats = rustPlatform.buildRustPackage {
@@ -91,7 +93,7 @@ let
     sourceRoot = "${src.name}/gpu_stats";
 
     useFetchCargoVendor = true;
-    cargoHash = "sha256-KrwZh8OoVwImfYDmvT2Je2MYyiTZVQYngwvVC+7fTzI=";
+    cargoHash = "sha256-kkWvTLduxFVIEvi4e65QQ7S0kHTRJ8XW028o430L91s=";
 
     checkFlags = [
       # fails in sandbox
@@ -102,7 +104,7 @@ let
       versionCheckHook
     ];
     versionCheckProgram = "${placeholder "out"}/bin/gpu_stats";
-    versionCheckProgramArg = [ "--version" ];
+    versionCheckProgramArg = "--version";
     doInstallCheck = true;
 
     meta = {
@@ -118,9 +120,9 @@ let
 
     # hardcode the `gpu_stats` binary path.
     postPatch = ''
-      substituteInPlace pkg/monitor/gpu.go \
+      substituteInPlace pkg/monitor/gpuresourcemanager.go \
         --replace-fail \
-          'cmdPath, err := getGPUStatsCmdPath()' \
+          'cmdPath, err := getGPUCollectorCmdPath()' \
           'cmdPath, err := "${lib.getExe gpu-stats}", error(nil)'
     '';
 
@@ -133,8 +135,20 @@ let
     nativeInstallCheckInputs = [
       versionCheckHook
     ];
-    versionCheckProgramArg = [ "--version" ];
+    versionCheckProgramArg = "--version";
     doInstallCheck = true;
+
+    checkFlags =
+      let
+        skippedTests = [
+          # gpu sampling crashes in the sandbox
+          "TestSystemMonitor_BasicStateTransitions"
+          "TestSystemMonitor_RepeatedCalls"
+          "TestSystemMonitor_UnexpectedTransitions"
+          "TestSystemMonitor_FullCycle"
+        ];
+      in
+      [ "-skip=^${lib.concatStringsSep "$|^" skippedTests}$" ];
 
     __darwinAllowLocalNetworking = true;
 
@@ -150,8 +164,7 @@ buildPythonPackage rec {
 
   patches = [
     # Replace git paths
-    (substituteAll {
-      src = ./hardcode-git-path.patch;
+    (replaceVars ./hardcode-git-path.patch {
       git = lib.getExe git;
     })
   ];
@@ -185,12 +198,16 @@ buildPythonPackage rec {
       platformdirs
       protobuf
       psutil
+      pydantic
       pyyaml
       requests
-      sentry-sdk_2
+      sentry-sdk
       setproctitle
       # setuptools is necessary since pkg_resources is required at runtime.
       setuptools
+    ]
+    ++ lib.optionals (pythonOlder "3.10") [
+      eval-type-backport
     ]
     ++ lib.optionals (pythonOlder "3.12") [
       typing-extensions
@@ -221,7 +238,6 @@ buildPythonPackage rec {
     parameterized
     pillow
     plotly
-    pydantic
     pyfakefs
     pyte
     pytest-asyncio
@@ -235,6 +251,7 @@ buildPythonPackage rec {
     soundfile
     tenacity
     torch
+    torchvision
     tqdm
     writableTmpDirAsHomeHook
   ];
@@ -247,6 +264,9 @@ buildPythonPackage rec {
   disabledTestPaths = [
     # Require docker access
     "tests/system_tests"
+
+    # broke somewhere between sentry-sdk 2.15.0 and 2.22.0
+    "tests/unit_tests/test_analytics/test_sentry.py"
   ];
 
   disabledTests =
@@ -337,6 +357,9 @@ buildPythonPackage rec {
       "test_matplotlib_plotly_with_multiple_axes"
       "test_matplotlib_to_plotly"
       "test_plotly_from_matplotlib_with_image"
+
+      # RuntimeError: *** -[__NSPlaceholderArray initWithObjects:count:]: attempt to insert nil object from objects[1]
+      "test_wandb_image_with_matplotlib_figure"
     ];
 
   pythonImportsCheck = [ "wandb" ];

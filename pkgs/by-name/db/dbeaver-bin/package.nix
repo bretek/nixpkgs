@@ -10,14 +10,14 @@
   wrapGAppsHook3,
   gtk3,
   glib,
-  webkitgtk_4_0,
+  webkitgtk_4_1,
   glib-networking,
   override_xmx ? "1024m",
 }:
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "dbeaver-bin";
-  version = "24.3.3";
+  version = "25.0.4";
 
   src =
     let
@@ -30,10 +30,10 @@ stdenvNoCC.mkDerivation (finalAttrs: {
         aarch64-darwin = "macos-aarch64.dmg";
       };
       hash = selectSystem {
-        x86_64-linux = "sha256-vj9C12bGJbWjmcjp2jVyvLmLHYdLjbEU0SVvevhkd4A=";
-        aarch64-linux = "sha256-vQArRJZvf38JEfDBNE4GfemddM4M1ar7RojXNTb6YaU=";
-        x86_64-darwin = "sha256-r+CLBy4zetjPXDzm6abQqY8IvE0UfROg5Ga0nIrb9oc=";
-        aarch64-darwin = "sha256-W8NAs5Z8Ogl1uv2zngi4A4viBL51izsv7ksS7gygh9I=";
+        x86_64-linux = "sha256-ALtJIld7gT4pj+jGRkwMloq6B/ZBOMYZxws9N7xNNZg=";
+        aarch64-linux = "sha256-Ka+jEI6y1BRqV83yDvu1yDzJfpUIxKKD+zehVHcNQ/o=";
+        x86_64-darwin = "sha256-P8f0NlMjh/46RChQy8JIm71msqX023K2QaFEic2Br9M=";
+        aarch64-darwin = "sha256-a9H9M1j6iPcrVcfDxCZHeZj6e55QH3XochXaL2OStlI=";
       };
     in
     fetchurl {
@@ -60,6 +60,14 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       --replace-fail '-Xmx1024m' '-Xmx${override_xmx}'
   '';
 
+  preInstall = ''
+    # most directories are for different architectures, only keep what we need
+    shopt -s extglob
+    pushd ${lib.optionalString stdenvNoCC.hostPlatform.isDarwin "Contents/Eclipse/"}plugins/com.sun.jna_*/com/sun/jna/
+    rm -r !(ptr|internal|linux-x86-64|linux-aarch64|darwin-x86-64|darwin-aarch64)/
+    popd
+  '';
+
   installPhase =
     if !stdenvNoCC.hostPlatform.isDarwin then
       ''
@@ -75,7 +83,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
             lib.makeLibraryPath [
               gtk3
               glib
-              webkitgtk_4_0
+              webkitgtk_4_1
               glib-networking
             ]
           }"
@@ -106,10 +114,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
         runHook postInstall
       '';
-
-  autoPatchelfIgnoreMissingDeps = [
-    "libc.so.8"
-  ];
 
   passthru.updateScript = ./update.sh;
 

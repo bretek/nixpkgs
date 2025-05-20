@@ -3,7 +3,8 @@
   mkCoqDerivation,
   autoconf,
   coq,
-  ssreflect,
+  stdlib,
+  mathcomp-boot,
   version ? null,
 }:
 
@@ -56,7 +57,10 @@ mkCoqDerivation {
   releaseRev = v: "coquelicot-${v}";
 
   nativeBuildInputs = [ autoconf ];
-  propagatedBuildInputs = [ ssreflect ];
+  propagatedBuildInputs = [
+    stdlib
+    mathcomp-boot
+  ];
   useMelquiondRemake.logpath = "Coquelicot";
 
   meta = with lib; {

@@ -26,17 +26,17 @@
 
 rustPlatform.buildRustPackage.override { stdenv = clangStdenv; } rec {
   pname = "neovide";
-  version = "0.14.0";
+  version = "0.15.0";
 
   src = fetchFromGitHub {
     owner = "neovide";
     repo = "neovide";
-    rev = version;
-    hash = "sha256-4fdC/wChsCICLd69ZjK7IaCH7gDmXvfKllCnRNsdqYI=";
+    tag = version;
+    hash = "sha256-MLiLddF53OXDPYuJbTAscezxN09mxZkuSOZtQz07JSE=";
   };
 
   useFetchCargoVendor = true;
-  cargoHash = "sha256-k3eblWIlOaGJHUSgxxsU2aFR504M+8XTXP16kt2fXbY=";
+  cargoHash = "sha256-1ni8AZIwAz5R2Ejt9Fj5qmybvL4KZV/M3BMqQx4HFLU=";
 
   SKIA_SOURCE_DIR =
     let
@@ -44,8 +44,8 @@ rustPlatform.buildRustPackage.override { stdenv = clangStdenv; } rec {
         owner = "rust-skia";
         repo = "skia";
         # see rust-skia:skia-bindings/Cargo.toml#package.metadata skia
-        rev = "m131-0.79.1";
-        hash = "sha256-XqXfKNYSiECbN96WVWA67Vy4sPuVvg6KqHESjA8gFJM=";
+        tag = "m135-0.83.1";
+        hash = "sha256-TSGPJl9DfWQtrkNIhv40s8VcuudCjbiSh+QjLc0hKN4=";
       };
       # The externals for skia are taken from skia/DEPS
       externals = linkFarm "skia-externals" (
@@ -89,6 +89,7 @@ rustPlatform.buildRustPackage.override { stdenv = clangStdenv; } rec {
         [
           libglvnd
           libxkbcommon
+          xorg.libX11
           xorg.libXcursor
           xorg.libXext
           xorg.libXrandr

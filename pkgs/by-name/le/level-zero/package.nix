@@ -10,13 +10,13 @@
 
 stdenv.mkDerivation rec {
   pname = "level-zero";
-  version = "1.20.0";
+  version = "1.21.9";
 
   src = fetchFromGitHub {
     owner = "oneapi-src";
     repo = "level-zero";
     tag = "v${version}";
-    hash = "sha256-dn/1EZlEBbmu4p7/5fn6LhQXOEUvI/gtAdHnCnosGEs=";
+    hash = "sha256-I9jCS4ZDEfOH/2kgIgeNne96Z5YZdzsmUGXza8PmXZI=";
   };
 
   nativeBuildInputs = [

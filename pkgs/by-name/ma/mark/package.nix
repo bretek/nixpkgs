@@ -1,21 +1,23 @@
 {
   lib,
-  buildGoModule,
+  buildGo123Module,
   fetchFromGitHub,
 }:
 
-buildGoModule rec {
+# Tests with go 1.24 do not work. For now
+# https://github.com/kovetskiy/mark/pull/581#issuecomment-2797872996
+buildGo123Module rec {
   pname = "mark";
-  version = "12.0.0";
+  version = "12.2.0";
 
   src = fetchFromGitHub {
     owner = "kovetskiy";
     repo = "mark";
-    rev = version;
-    sha256 = "sha256-kMP6+L7kfK/qfVI49ssD6Ar1c7ugKgiXUIk9yjQYXE8=";
+    rev = "${version}";
+    sha256 = "sha256-0w6rIOSnOS7EfTBA/mRNWm8KOtdviTxWdukl4reb4zE=";
   };
 
-  vendorHash = "sha256-40hYy3rXyTqrmTp6lNsLI5c2GWZ6Aoi3KRPJV0Ry5Ds=";
+  vendorHash = "sha256-CqFCjSXw7/jLe1OYosUl6mKSPEsdHl8p3zb/LVNqnxM=";
 
   ldflags = [
     "-s"

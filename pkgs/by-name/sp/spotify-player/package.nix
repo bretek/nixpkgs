@@ -21,7 +21,6 @@
   withDaemon ? true,
   withAudioBackend ? "rodio", # alsa, pulseaudio, rodio, portaudio, jackaudio, rodiojack, sdl
   withMediaControl ? true,
-  withLyrics ? true,
   withImage ? true,
   withNotify ? true,
   withSixel ? true,
@@ -47,17 +46,17 @@ assert lib.assertOneOf "withAudioBackend" withAudioBackend [
 
 rustPlatform.buildRustPackage rec {
   pname = "spotify-player";
-  version = "0.20.3";
+  version = "0.20.5";
 
   src = fetchFromGitHub {
     owner = "aome510";
-    repo = pname;
+    repo = "spotify-player";
     tag = "v${version}";
-    hash = "sha256-9iXsZod1aLdCQYUKBjdRayQfRUz770Xw3/M85Rp/OCw=";
+    hash = "sha256-NlMQgVkMVCVrMv4IyFtPmRkAmf2k4F0dp6e8s63aBHg=";
   };
 
   useFetchCargoVendor = true;
-  cargoHash = "sha256-LX4DuIIL9jGQLEzECydIdPEdPGdRTYREwFbMCS8CoNo=";
+  cargoHash = "sha256-glQh6PzwJp5o35aXRW4+Pq2iSeGg9vjR5fJQomPpSOc=";
 
   nativeBuildInputs =
     [
@@ -100,12 +99,16 @@ rustPlatform.buildRustPackage rec {
     ++ lib.optionals (withAudioBackend != "") [ "${withAudioBackend}-backend" ]
     ++ lib.optionals withMediaControl [ "media-control" ]
     ++ lib.optionals withImage [ "image" ]
-    ++ lib.optionals withLyrics [ "lyric-finder" ]
     ++ lib.optionals withDaemon [ "daemon" ]
     ++ lib.optionals withNotify [ "notify" ]
     ++ lib.optionals withStreaming [ "streaming" ]
     ++ lib.optionals withSixel [ "sixel" ]
     ++ lib.optionals withFuzzy [ "fzf" ];
+
+  # tries to access HOME only in aarch64-darwin environment when building mac-notification-sys
+  preBuild = lib.optionalString (stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isAarch64) ''
+    export HOME=$TMPDIR
+  '';
 
   # sixel-sys is dynamically linked to libsixel
   postInstall = lib.optionals (stdenv.hostPlatform.isDarwin && withSixel) ''

@@ -36,7 +36,7 @@ Before adding a new package, please consider the following questions:
 
 If any of these questions' answer is no, then you should probably not add the package.
 
-This is section describes a general framework of understanding and exceptions might apply.
+This section describes a general framework of understanding and exceptions might apply.
 
 Luckily it's pretty easy to maintain your own package set with Nix, which can then be added to the [Nix User Repository](https://github.com/nix-community/nur) project.
 
@@ -87,7 +87,7 @@ Now that this is out of the way. To add a package to Nixpkgs:
 
    - XML::Simple, a Perl module: [`pkgs/top-level/perl-packages.nix`](top-level/perl-packages.nix) (search for the `XMLSimple` attribute). Most Perl modules are so simple to build that they are defined directly in `perl-packages.nix`; no need to make a separate file for them.
 
-   - Adobe Reader: [`pkgs/applications/misc/adobe-reader/default.nix`](applications/misc/adobe-reader/default.nix). Shows how binary-only packages can be supported. In particular the [builder](applications/misc/adobe-reader/builder.sh) uses `patchelf` to set the RUNPATH and ELF interpreter of the executables so that the right libraries are found at runtime.
+   - Adobe Reader: [`pkgs/applications/misc/adobe-reader/default.nix`](applications/misc/adobe-reader/default.nix). Shows how binary-only packages can be supported. In particular the `postFixup` phase uses `patchelf` to set the RUNPATH and ELF interpreter of the executables so that the right libraries are found at runtime.
 
    Some notes:
 
@@ -337,7 +337,7 @@ In Nixpkgs, there are generally three different names associated with a package:
 
 - The `pname` attribute of the derivation. This is what most users see, in particular when using `nix-env`.
 
-- The attribute name used for the package in the [`pkgs/by-name` structure](./pkgs/by-name/README.md) or in [`all-packages.nix`](./pkgs/top-level/all-packages.nix), and when passing it as a dependency in recipes.
+- The attribute name used for the package in the [`pkgs/by-name` structure](./by-name/README.md) or in [`all-packages.nix`](./top-level/all-packages.nix), and when passing it as a dependency in recipes.
 
 - The filename for (the directory containing) the Nix expression.
 
@@ -399,6 +399,8 @@ Because every version of a package in Nixpkgs creates a potential maintenance bu
 If there is only one version of a package, its Nix expression should be named (e.g) `pkgs/by-name/xy/xyz/package.nix`. If there are multiple versions, this should be reflected in the attribute name. If you wish to share code between the Nix expressions of each version, you cannot rely upon `pkgs/by-name`'s automatic attribute creation, and must create the attributes yourself in `all-packages.nix`. See also [`pkgs/by-name/README.md`'s section on this topic](https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/README.md#recommendation-for-new-packages-with-multiple-versions).
 
 ## Meta attributes
+
+The `meta` attribute set should always be placed last in the derivativion and any other "meta"-like attribute sets like `passthru` should be written before it.
 
 * `meta.description` must:
   * Be short, just one sentence.
@@ -499,28 +501,29 @@ When using the `patches` parameter to `mkDerivation`, make sure the patch name c
 
 ### Fetching patches
 
-In the interest of keeping our maintenance burden and the size of Nixpkgs to a minimum, patches already merged upstream or published elsewhere _should_ be retrieved using `fetchpatch`:
+In the interest of keeping our maintenance burden and the size of Nixpkgs to a minimum, patches already merged upstream or published elsewhere _should_ be retrieved using `fetchpatch2`:
 
 ```nix
 {
   patches = [
-    (fetchpatch {
+    (fetchpatch2 {
       name = "fix-check-for-using-shared-freetype-lib.patch";
-      url = "http://git.ghostscript.com/?p=ghostpdl.git;a=patch;h=8f5d285";
+      url = "https://cgit.ghostscript.com/cgi-bin/cgit.cgi/ghostpdl.git/patch/?id=8f5d28536e4518716fdfe974e580194c8f57871d";
       hash = "sha256-uRcxaCjd+WAuGrXOmGfFeu79cUILwkRdBu48mwcBE7g=";
     })
   ];
 }
 ```
 
-If a patch is available online but does not cleanly apply, it can be modified in some fixed ways by using additional optional arguments for `fetchpatch`. Check [the `fetchpatch` reference](https://nixos.org/manual/nixpkgs/unstable/#fetchpatch) for details.
+If a patch is available online but does not cleanly apply, it can be modified in some fixed ways by using additional optional arguments for `fetchpatch2`. Check [the `fetchpatch` reference](https://nixos.org/manual/nixpkgs/unstable/#fetchpatch) for details.
+
+When adding patches in this manner you should be reasonably sure that the used URL is stable. Patches referencing open pull requests will change when the PR is updated and code forges (such as GitHub) usually garbage collect commits that are no longer reachable due to rebases/amends.
 
 ### Vendoring patches
 
 In the following cases, a `.patch` file _should_ be added to Nixpkgs repository, instead of retrieved:
 
 - solves problems unique to packaging in Nixpkgs
-- is already proposed upstream but not merged yet
 - cannot be fetched easily
 - has a high chance to disappear in the future due to unstable or unreliable URLs
 
@@ -729,7 +732,7 @@ $ nix-build -A phoronix-test-suite.tests
 
 Here are examples of package tests:
 
-- [Jasmin compile test](development/compilers/jasmin/test-assemble-hello-world/default.nix)
+- [Jasmin compile test](by-name/ja/jasmin/test-assemble-hello-world/default.nix)
 - [Lobster compile test](development/compilers/lobster/test-can-run-hello-world.nix)
 - [Spacy annotation test](development/python-modules/spacy/annotation-test/default.nix)
 - [Libtorch test](development/libraries/science/math/libtorch/test/default.nix)

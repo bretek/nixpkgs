@@ -11,13 +11,13 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "parseable";
-  version = "1.7.1";
+  version = "2.2.0";
 
   src = fetchFromGitHub {
     owner = "parseablehq";
     repo = "parseable";
     tag = "v${version}";
-    hash = "sha256-Uoejniv6hUpxTZ6gosP+LHTo4FD+o1AlUEWopdpz5M0=";
+    hash = "sha256-oMDFi5cBcghxzwmmR/Gg50PcYCb6HaxDqWA8vVyw30Y=";
   };
 
   LOCAL_ASSETS_PATH = fetchzip {
@@ -26,7 +26,7 @@ rustPlatform.buildRustPackage rec {
   };
 
   useFetchCargoVendor = true;
-  cargoHash = "sha256-rT/ORTOPsOgYlS8VCMBXo/cjfSJYcCtJofcPEIlc/cI=";
+  cargoHash = "sha256-kVLUSu+9jW3M0YosmpZWDIKCj7GilZZibMMtufHPdfM=";
 
   nativeBuildInputs = [ pkg-config ];
 

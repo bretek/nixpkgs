@@ -1,9 +1,9 @@
 {
   "owner": "advplyr",
   "repo": "audiobookshelf",
-  "rev": "82ab95ab028711626b01838a2c562c796b36c2b0",
-  "hash": "sha256-qxYch3NLxB072eKafkeZwEE1WqEmAc+kEMxR1fQxtCI=",
-  "version": "2.19.0",
-  "depsHash": "sha256-ha1ar06WCyUb1DvX5fswMKcebBzc7o+px1/l7TTrkmI=",
-  "clientDepsHash": "sha256-OdlnH7PAlhFSaHXEry3XY5xkTdqEk+Us8ugGHkXRDds="
+  "rev": "077273033657da2345494084dc7a1f399cc1a7ba",
+  "hash": "sha256-6ygJrB7AvOyRLgDrkz/qLXiJXP+0U7uhi1HqZP62+gU=",
+  "version": "2.23.0",
+  "depsHash": "sha256-3ANieZvWxLVDiIZ1oGSB3UQgApZvukXN5OokyUnFyzg=",
+  "clientDepsHash": "sha256-WiMQZwPFo5qTo4kTWZ+LuLKDEorediQ+GhUxAO+nRCc="
 }

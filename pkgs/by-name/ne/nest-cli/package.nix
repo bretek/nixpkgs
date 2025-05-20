@@ -1,9 +1,8 @@
-{ buildNpmPackage
-, darwin
-, fetchFromGitHub
-, lib
-, python3
-, stdenv
+{
+  buildNpmPackage,
+  fetchFromGitHub,
+  lib,
+  python3,
 }:
 
 buildNpmPackage rec {
@@ -12,7 +11,7 @@ buildNpmPackage rec {
 
   src = fetchFromGitHub {
     owner = "nestjs";
-    repo = pname;
+    repo = "nest-cli";
     rev = version;
     hash = "sha256-dko+hOC3oZToNS+EOqmm+z7DLHfqqKDeQsH2sYxburU=";
   };
@@ -25,10 +24,6 @@ buildNpmPackage rec {
 
   nativeBuildInputs = [
     python3
-  ];
-
-  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.CoreServices
   ];
 
   meta = with lib; {

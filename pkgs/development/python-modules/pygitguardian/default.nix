@@ -16,7 +16,7 @@
 
 buildPythonPackage rec {
   pname = "pygitguardian";
-  version = "1.19.0";
+  version = "1.21.0";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -25,7 +25,7 @@ buildPythonPackage rec {
     owner = "GitGuardian";
     repo = "py-gitguardian";
     tag = "v${version}";
-    hash = "sha256-g3OH6pPk6Whd0JW6voILEK40/z6gWrdT6ibSa5kW47Q=";
+    hash = "sha256-pFbryvVwAQbhjNDZ0v+edvtWpkHZ1AVTz0tEsfYBXz8=";
   };
 
   pythonRelaxDeps = [

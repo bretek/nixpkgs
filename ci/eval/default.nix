@@ -9,6 +9,7 @@
   nixVersions,
   jq,
   sta,
+  python3,
 }:
 
 let
@@ -25,16 +26,19 @@ let
           "nixos"
           "pkgs"
           ".version"
-          "ci/supportedSystems.nix"
+          "ci/supportedSystems.json"
         ]
       );
     };
 
-  nix = nixVersions.nix_2_24;
+  nix = nixVersions.latest;
 
-  supportedSystems = import ../supportedSystems.nix;
+  supportedSystems = builtins.fromJSON (builtins.readFile ../supportedSystems.json);
 
   attrpathsSuperset =
+    {
+      evalSystem,
+    }:
     runCommand "attrpaths-superset.json"
       {
         src = nixpkgs;
@@ -42,8 +46,6 @@ let
           nix
           time
         ];
-        env.supportedSystems = builtins.toJSON supportedSystems;
-        passAsFile = [ "supportedSystems" ];
       }
       ''
         export NIX_STATE_DIR=$(mktemp -d)
@@ -56,8 +58,8 @@ let
             -I "$src" \
             --option restrict-eval true \
             --option allow-import-from-derivation false \
+            --option eval-system "${evalSystem}" \
             --arg enableWarnings false > $out/paths.json
-        mv "$supportedSystemsPath" $out/systems.json
       '';
 
   singleSystem =
@@ -67,7 +69,7 @@ let
       # because `--argstr system` would only be passed to the ci/default.nix file!
       evalSystem,
       # The path to the `paths.json` file from `attrpathsSuperset`
-      attrpathFile,
+      attrpathFile ? "${attrpathsSuperset { inherit evalSystem; }}/paths.json",
       # The number of attributes per chunk, see ./README.md for more info.
       chunkSize,
       checkMeta ? true,
@@ -87,8 +89,10 @@ let
         export NIX_SHOW_STATS_PATH="$outputDir/stats/$myChunk"
         echo "Chunk $myChunk on $system start"
         set +e
-        command time -f "Chunk $myChunk on $system done [%MKB max resident, %Es elapsed] %C" \
+        command time -o "$outputDir/timestats/$myChunk" \
+          -f "Chunk $myChunk on $system done [%MKB max resident, %Es elapsed] %C" \
           nix-env -f "${nixpkgs}/pkgs/top-level/release-attrpaths-parallel.nix" \
+          --eval-system "$system" \
           --option restrict-eval true \
           --option allow-import-from-derivation false \
           --query --available \
@@ -102,12 +106,18 @@ let
           --arg includeBroken ${lib.boolToString includeBroken} \
           -I ${nixpkgs} \
           -I ${attrpathFile} \
-          > "$outputDir/result/$myChunk"
+          > "$outputDir/result/$myChunk" \
+          2> "$outputDir/stderr/$myChunk"
         exitCode=$?
         set -e
+        cat "$outputDir/stderr/$myChunk"
+        cat "$outputDir/timestats/$myChunk"
         if (( exitCode != 0 )); then
           echo "Evaluation failed with exit code $exitCode"
           # This immediately halts all xargs processes
+          kill $PPID
+        elif [[ -s "$outputDir/stderr/$myChunk" ]]; then
+          echo "Nixpkgs on $system evaluated with warnings, aborting"
           kill $PPID
         fi
       '';
@@ -164,12 +174,14 @@ let
         ''}
 
         chunkOutputDir=$(mktemp -d)
-        mkdir "$chunkOutputDir"/{result,stats}
+        mkdir "$chunkOutputDir"/{result,stats,timestats,stderr}
 
         seq -w 0 "$seq_end" |
           command time -f "%e" -o "$out/total-time" \
           xargs -I{} -P"$cores" \
           ${singleChunk} "$chunkSize" {} "$evalSystem" "$chunkOutputDir"
+
+        cp -r "$chunkOutputDir"/stats $out/stats-by-chunk
 
         if (( chunkSize * chunkCount != attrCount )); then
           # A final incomplete chunk would mess up the stats, don't include it
@@ -245,6 +257,12 @@ let
           done
         } |
           jq -s from_entries > $out/stats.json
+
+        mkdir -p $out/stats
+
+        for d in ${resultsDir}/*; do
+          cp -r "$d"/stats-by-chunk $out/stats/$(basename "$d")
+        done
       '';
 
   compare = import ./compare {
@@ -254,6 +272,7 @@ let
       runCommand
       writeText
       supportedSystems
+      python3
       ;
   };
 
@@ -271,7 +290,6 @@ let
           name = evalSystem;
           path = singleSystem {
             inherit quickTest evalSystem chunkSize;
-            attrpathFile = attrpathsSuperset + "/paths.json";
           };
         }) evalSystems
       );

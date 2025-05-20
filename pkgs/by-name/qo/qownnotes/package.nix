@@ -17,11 +17,11 @@
 stdenv.mkDerivation (finalAttrs: {
   pname = "qownnotes";
   appname = "QOwnNotes";
-  version = "25.2.1";
+  version = "25.5.3";
 
   src = fetchurl {
     url = "https://github.com/pbek/QOwnNotes/releases/download/v${finalAttrs.version}/qownnotes-${finalAttrs.version}.tar.xz";
-    hash = "sha256-hP2Q0VZfA6+jmUUqW0L/ufmw2vE9gFj5GSm2G8xRda0=";
+    hash = "sha256-853xxUgRMtnL+frLCmzzGL44xstDwnrEMhYBFpL5hmQ=";
   };
 
   nativeBuildInputs =
@@ -59,7 +59,7 @@ stdenv.mkDerivation (finalAttrs: {
         --fish <(xvfb-run $out/bin/${finalAttrs.appname} --completion fish)
     ''
     # Install shell completion on macOS
-    + lib.optionalString stdenv.isDarwin ''
+    + lib.optionalString stdenv.hostPlatform.isDarwin ''
       installShellCompletion --cmd ${finalAttrs.pname} \
         --bash <($out/bin/${finalAttrs.appname} --completion bash) \
         --fish <($out/bin/${finalAttrs.appname} --completion fish)
@@ -81,7 +81,7 @@ stdenv.mkDerivation (finalAttrs: {
   nativeInstallCheckInputs = [
     versionCheckHook
   ];
-  versionCheckProgramArg = [ "--version" ];
+  versionCheckProgramArg = "--version";
   doInstallCheck = true;
 
   passthru = {

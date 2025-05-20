@@ -16,7 +16,7 @@
 
 buildPythonPackage rec {
   pname = "internetarchive";
-  version = "5.2.0";
+  version = "5.4.0";
   pyproject = true;
 
   disabled = pythonOlder "3.9";
@@ -25,7 +25,7 @@ buildPythonPackage rec {
     owner = "jjjake";
     repo = "internetarchive";
     tag = "v${version}";
-    hash = "sha256-xi3cR/j25gRe+muWjk8towzELgDciqLxGvBIpRqJHd0=";
+    hash = "sha256-2IL4VUt958atKDqCmj6rZ9I74tBRsA42EF1F1YT433E=";
   };
 
   build-system = [ setuptools ];
@@ -64,7 +64,7 @@ buildPythonPackage rec {
   meta = {
     description = "Python and Command-Line Interface to Archive.org";
     homepage = "https://github.com/jjjake/internetarchive";
-    changelog = "https://github.com/jjjake/internetarchive/blob/v${version}/HISTORY.rst";
+    changelog = "https://github.com/jjjake/internetarchive/blob/${src.tag}/HISTORY.rst";
     license = lib.licenses.agpl3Plus;
     maintainers = with lib.maintainers; [ pyrox0 ];
     mainProgram = "ia";

@@ -18,8 +18,8 @@ let
 in
 buildNodejs {
   inherit enableNpm;
-  version = "20.18.3";
-  sha256 = "0674f16f3bc284c11724cd3f7c2a43f7c2c13d2eb7a872dd0db198f3d588c5f2";
+  version = "20.19.1";
+  sha256 = "5587b23e907d0c7af2ea8a8deb33ec50010453b46dbb3df5987c5678eee5ed51";
   patches = [
     ./configure-emulator.patch
     ./configure-armv6-vfpv2.patch
@@ -49,6 +49,11 @@ buildNodejs {
       extraPrefix = "deps/v8/";
       stripLen = 1;
       hash = "sha256-6y3aEqxNC4iTQEv1oewodJrhOHxjp5xZMq1P1QL94Rg=";
+    })
+    # fix test failure on macos 15.4
+    (fetchpatch2 {
+      url = "https://github.com/nodejs/node/commit/33f6e1ea296cd20366ab94e666b03899a081af94.patch?full_index=1";
+      hash = "sha256-aVBMcQlhQeviUQpMIfC988jjDB2BgYzlMYsq+w16mzU=";
     })
   ] ++ gypPatches;
 }

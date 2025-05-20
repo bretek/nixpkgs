@@ -86,6 +86,7 @@ in
             libusermetrics
             lomiri
             lomiri-calculator-app
+            lomiri-calendar-app
             lomiri-camera-app
             lomiri-clock-app
             lomiri-content-hub
@@ -201,8 +202,9 @@ in
 
       systemd.user.services =
         let
+          lomiriService = "lomiri.service";
           lomiriServiceNames = [
-            "lomiri.service"
+            lomiriService
             "lomiri-full-greeter.service"
             "lomiri-full-shell.service"
             "lomiri-greeter.service"
@@ -224,9 +226,9 @@ in
 
           "lomiri-polkit-agent" = {
             description = "Lomiri Polkit agent";
-            wantedBy = lomiriServiceNames;
-            after = [ "graphical-session.target" ];
-            partOf = lomiriServiceNames;
+            wantedBy = [ lomiriService ];
+            after = [ lomiriService ];
+            partOf = [ lomiriService ];
             serviceConfig = {
               Type = "simple";
               Restart = "always";

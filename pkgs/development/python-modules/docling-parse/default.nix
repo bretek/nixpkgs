@@ -23,14 +23,14 @@
 
 buildPythonPackage rec {
   pname = "docling-parse";
-  version = "3.3.0";
+  version = "4.0.1";
   pyproject = true;
 
   src = fetchFromGitHub {
-    owner = "DS4SD";
+    owner = "docling-project";
     repo = "docling-parse";
     tag = "v${version}";
-    hash = "sha256-huJOH/5SQoJiJp1wmJV5n07KHDZseM9XI26bfPQAxrA=";
+    hash = "sha256-Po+0IepSTy4ChJVjjTuTZqt8/iLoSJK63bTkH+Xgtl8=";
   };
 
   dontUseCmakeConfigure = true;

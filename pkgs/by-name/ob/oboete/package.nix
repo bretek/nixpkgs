@@ -2,50 +2,28 @@
   lib,
   rustPlatform,
   fetchFromGitHub,
-  pkg-config,
-  wrapGAppsHook3,
-  libxkbcommon,
+  libcosmicAppHook,
   sqlite,
-  vulkan-loader,
-  wayland,
   nix-update-script,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "oboete";
-  version = "0.1.8";
+  version = "0.1.9";
 
   src = fetchFromGitHub {
     owner = "mariinkys";
     repo = "oboete";
     tag = version;
-    hash = "sha256-tQn3ihGHkR91zNtBIiyyIEEo21Q0ZSKLEaV/3UI9pwU=";
+    hash = "sha256-Xs9o6V/rUtRkUp7F2hJXLz8PP7XWtqx4uaONo3Q23uo=";
   };
 
   useFetchCargoVendor = true;
-  cargoHash = "sha256-91JMgdpMXL0a7oZXAG5xgiulOIyVXQ5x09wN3XDeSy0=";
+  cargoHash = "sha256-bhSkQcDqYhkRwqLbiOLXprQnMqjDKRetZ97K1ES5hrw=";
 
-  nativeBuildInputs = [
-    pkg-config
-    wrapGAppsHook3
-  ];
+  nativeBuildInputs = [ libcosmicAppHook ];
 
-  buildInputs = [
-    libxkbcommon
-    sqlite
-    vulkan-loader
-    wayland
-  ];
-
-  postFixup = ''
-    wrapProgram $out/bin/oboete \
-      --prefix LD_LIBRARY_PATH : "${
-        lib.makeLibraryPath [
-          libxkbcommon
-          wayland
-        ]
-      }"
-  '';
+  buildInputs = [ sqlite ];
 
   passthru = {
     updateScript = nix-update-script { };
@@ -56,7 +34,10 @@ rustPlatform.buildRustPackage rec {
     homepage = "https://github.com/mariinkys/oboete";
     changelog = "https://github.com/mariinkys/oboete/releases/tag/${version}";
     license = lib.licenses.gpl3Only;
-    maintainers = with lib.maintainers; [ GaetanLepage ];
+    maintainers = with lib.maintainers; [
+      GaetanLepage
+      HeitorAugustoLN
+    ];
     platforms = lib.platforms.linux;
     mainProgram = "oboete";
   };

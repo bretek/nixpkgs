@@ -22,7 +22,6 @@
   libfido2,
   numactl,
   cctools,
-  CoreServices,
   developer_cmds,
   libtirpc,
   rpcsvc-proto,
@@ -43,11 +42,11 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "percona-server";
-  version = "8.0.40-31";
+  version = "8.0.41-32";
 
   src = fetchurl {
     url = "https://www.percona.com/downloads/Percona-Server-8.0/Percona-Server-${finalAttrs.version}/source/tarball/percona-server-${finalAttrs.version}.tar.gz";
-    hash = "sha256-ExhnDY4XbCTfdAGfdI9fIz4nh/hl3T1B1heQq1p3LE4=";
+    hash = "sha256-3ua/8X0vzbBzjRNhmMjdz3Wfk7ECs67bPoCYBBNXywc=";
   };
 
   nativeBuildInputs = [
@@ -103,7 +102,6 @@ stdenv.mkDerivation (finalAttrs: {
     ]
     ++ lib.optionals stdenv.hostPlatform.isDarwin [
       cctools
-      CoreServices
       developer_cmds
       DarwinTools
     ];
@@ -142,7 +140,7 @@ stdenv.mkDerivation (finalAttrs: {
   postInstall = ''
     moveToOutput "lib/*.a" $static
     so=${stdenv.hostPlatform.extensions.sharedLibrary}
-    ln -s libmysqlclient$so $out/lib/libmysqlclient_r$so
+    ln -s libperconaserverclient$so $out/lib/libmysqlclient_r$so
 
     wrapProgram $out/bin/mysqld_safe --prefix PATH : ${
       lib.makeBinPath [
@@ -201,7 +199,7 @@ stdenv.mkDerivation (finalAttrs: {
       Long-term support release.
     '';
     license = licenses.gpl2Only;
-    maintainers = teams.flyingcircus.members;
+    teams = [ teams.flyingcircus ];
     platforms = platforms.unix;
   };
 })

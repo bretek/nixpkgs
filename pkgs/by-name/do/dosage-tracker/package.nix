@@ -17,13 +17,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "dosage";
-  version = "1.8.0";
+  version = "1.9.9";
 
   src = fetchFromGitHub {
     owner = "diegopvlk";
     repo = "Dosage";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-u/HnlnitLJjYxt+LqbhS2DYUDVVBamZCakBym2eNK1c=";
+    hash = "sha256-UVcbZgPk35VsYvyzIJrR79vAhSByJjn8kh+y0KQcwpM=";
   };
 
   # https://github.com/NixOS/nixpkgs/issues/318830

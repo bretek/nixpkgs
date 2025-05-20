@@ -30,20 +30,26 @@
 
 stdenv.mkDerivation rec {
   pname = "fractal";
-  version = "10";
+  version = "11";
 
   src = fetchFromGitLab {
     domain = "gitlab.gnome.org";
     owner = "World";
     repo = "fractal";
     tag = version;
-    hash = "sha256-dXmdoEBvHhOoICIDCpi2JTPo7j/kQzlv+Q/S/7LNyv0=";
+    hash = "sha256-gb6DHb7pFFAmNQxK1vnBQtVRiMRu0BCvkhACkLeRHXs=";
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
     inherit src;
-    hash = "sha256-qRxJvlorS5S3Wj3HjfvvR2nM/ZWzefz4x791UeSXm0w=";
+    hash = "sha256-Yc+/aTaIq/9NmdIhHSKixWTwSZRNtxA6p5n9OWkYH/U=";
   };
+
+  patches = [
+    # Disable debug symbols in release builds
+    # The debug symbols are stripped afterwards anyways, and building with them requires extra memory
+    ./disable-debug.patch
+  ];
 
   # Dirty approach to add patches after cargoSetupPostUnpackHook
   # We should eventually use a cargo vendor patch hook instead
@@ -106,7 +112,7 @@ stdenv.mkDerivation rec {
     homepage = "https://gitlab.gnome.org/GNOME/fractal";
     changelog = "https://gitlab.gnome.org/World/fractal/-/releases/${version}";
     license = licenses.gpl3Plus;
-    maintainers = teams.gnome.members;
+    teams = [ teams.gnome ];
     platforms = platforms.linux;
     mainProgram = "fractal";
   };

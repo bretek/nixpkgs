@@ -7,13 +7,13 @@
 }:
 llvmPackages.stdenv.mkDerivation rec {
   pname = "enzyme";
-  version = "0.0.172";
+  version = "0.0.176";
 
   src = fetchFromGitHub {
     owner = "EnzymeAD";
     repo = "Enzyme";
     rev = "v${version}";
-    hash = "sha256-/FxjXCML7hBNYOVf1PLG+VwCdaNGYwwirRJSQxIvLcg=";
+    hash = "sha256-/c8gxv9i4oHp3/7z6c1lU1lWPsPK27xkjjNjrPwieZE=";
   };
 
   postPatch = ''
@@ -44,6 +44,9 @@ llvmPackages.stdenv.mkDerivation rec {
     description = "High-performance automatic differentiation of LLVM and MLIR";
     maintainers = with lib.maintainers; [ kiranshila ];
     platforms = lib.platforms.all;
-    license = lib.licenses.asl20-llvm;
+    license = with lib.licenses; [
+      asl20
+      llvm-exception
+    ];
   };
 }
